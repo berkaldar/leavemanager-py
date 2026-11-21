@@ -28,12 +28,22 @@ and B-11 (no rate limiting) are closed and the demo accounts below are replaced.
   never in code.
 
 ## Known findings (bootstrap 2026-11-21)
-- **High — stored XSS:** reason and names are rendered unescaped with `|safe` (`app.py:151`).
+- **High — stored XSS:** reason and names are rendered unescaped with `|safe` (`app.py:157`).
   First spec after the characterization tests (B-8).
-- **High — debug mode in code:** `app.run(debug=True)` (`app.py:182`) exposes the Werkzeug
-  debugger (B-9).
-- **Medium — no rate limiting, lockout or session expiry** for sign-in (B-11); sessions last
-  until the browser closes.
+- **High — debug mode in code:** `app.run(debug=True)` (`app.py:267`) exposes the Werkzeug
+  debugger (B-9); the debugger's console sits outside the sign-in guard and is protected only by
+  its PIN.
+- **Medium — sign-in hardening missing (B-11):** no rate limiting or lockout; failed sign-ins for a
+  known username take ~100 ms and for an unknown one ~1 ms, so usernames can be told apart by
+  timing (they are public anyway).
+- **Medium — sessions are client-side signed cookies:** the server accepts one for up to 31 days
+  after sign-in (Flask's default permanent-session lifetime), and **signing out does not revoke a
+  copy of the cookie** (a replayed pre-logout cookie still works). Over plain HTTP a sniffed cookie
+  is therefore valid for up to 31 days. A session lifetime and server-side revocation belong to
+  B-11.
+- `python app.py` is the only supported way to serve the app: it checks `SECRET_KEY` and
+  `LEAVE_DEMO_PASSWORD` first. Served some other way without them, the app answers no data (the
+  sign-in page fails with a 500 and nobody can sign in).
 - **Limits of the first authentication (spec 0004):** the five demo accounts share one password
   (real user and password management is a later spec); the session cookie is not `Secure`
   because the app runs over plain HTTP; sign-in always lands on the dashboard (no "return to the
