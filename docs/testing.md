@@ -11,7 +11,10 @@
 - **pytest** (pinned in `requirements-dev.txt`), run as `.venv/Scripts/python -m pytest`.
 - Tests live in `tests/`: `tests/test_<area>.py`, functions `test_<behavior>`.
 - **Unit tests** call `LeaveService` with plain `date` values. **HTTP tests** use Flask's
-  `app.test_client()` — in-process, no server, no port, no browser.
+  `app.test_client()` — in-process, no server, no port, no browser. Page tests use the `client`
+  fixture (`tests/conftest.py`): signed in as the HR user through the session, with every form post
+  carrying the session's CSRF token. Authentication tests use `anon_client` and sign in through the
+  real form.
 - Fast/full split by **pytest marker**, never by file list (Two speeds, rule 4): HTTP tests carry
   `@pytest.mark.http`; the fast step runs `-m "not http"` (active since spec 0001), the
   full-only step `-m http` (activated with the first `http` test, spec 0002).
