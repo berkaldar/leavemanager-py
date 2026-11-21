@@ -32,3 +32,5 @@ step 7). Nothing lands here without that decision; noise is rejected in the tria
   — Recommendation: escape all output; first spec after the characterization tests — Deferred by: Berk, 2026-11-21, characterization tests first
 - **B-9** — debug=True hard-coded in app.run — Source: bootstrap 2026-11-21 (app.py:182) — Severity: high
   — Recommendation: FLASK_DEBUG env var, off by default — Deferred by: Berk, 2026-11-21, characterization tests first
+- **B-10** — New-request page has no input validation and no proper error responses: an end date before the start date is stored; invalid input (bad date, missing field, unknown employee) is swallowed by a redirect; the balance error returns HTTP 200 with an internal code and a phone extension — Source: spec 0002 clarify, 2026-11-21 (app.py:157-171) — Severity: medium
+  — Recommendation: validate at the route boundary, HTTP 400 with a plain message (docs/security.md, Input & output) — Deferred by: Berk, 2026-11-21, characterization tests first (spec 0003 pins it)
