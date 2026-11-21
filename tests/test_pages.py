@@ -132,7 +132,7 @@ def test_request_list_empty_state(client):
     assert table_rows(page(client, "/requests")) == [LIST_HEADER]
 
 
-# --- AC-6: output is not escaped (OPEN B-8) -------------------------------------------------
+# --- AC-6: stored text is shown as text (spec 0005, Supersedes 0002/AC-6) -------------------
 
 @pytest.mark.parametrize(
     ("path", "record", "field"),
@@ -143,12 +143,12 @@ def test_request_list_empty_state(client):
         ("/requests", "request", "reason"),
     ],
 )
-def test_markup_is_not_escaped(client, path, record, field):
+def test_markup_is_escaped(client, path, record, field):
     target = Db.employees[0] if record == "employee" else Db.requests[0]
     target[field] = "<b>x</b>"
     html = page(client, path)
-    assert "<b>x</b>" in html  # OPEN B-8: rendered as markup
-    assert "&lt;b&gt;x&lt;/b&gt;" not in html
+    assert "&lt;b&gt;x&lt;/b&gt;" in html  # shown as text
+    assert "<b>x</b>" not in html  # not rendered as markup
 
 
 # --- AC-7: no page changes a status (BR-7) --------------------------------------------------
