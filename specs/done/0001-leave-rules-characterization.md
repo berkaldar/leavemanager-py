@@ -1,6 +1,6 @@
 # Spec 0001 — Leave rules characterization (BR-1…BR-6)
 
-- Status: In progress
+- Status: Shipped
 - Mode: lite
 - Plan: `specs/plans/0001-plan.md`
 - Self-critique: done
@@ -38,48 +38,48 @@ none — no user interface (the pages are spec 0002).
 
 ## Acceptance criteria
 "Today" is 2026-11-21 in every criterion.
-- [ ] AC-1 — Seniority is the current calendar year minus the hire year, month and day ignored
+- [x] AC-1 — Seniority is the current calendar year minus the hire year, month and day ignored
   (OPEN B-2): hired 2025-12-31 → 1 year; hired 2026-06-01 → 0 years; hired 2020-02-29 (leap
   day) → 6 years, without error.
-- [ ] AC-2 — Entitlement by seniority (OPEN B-1 for 1–5 years), by hire year: 2026 (0 years)
+- [x] AC-2 — Entitlement by seniority (OPEN B-1 for 1–5 years), by hire year: 2026 (0 years)
   → 0 days; 2025 (1) → 14; 2021 (5) → 14; 2020 (6) → 20; 2011 (15) → 20; 2010 (16) → 26.
-- [ ] AC-3 — Request length counts calendar days with both ends included (OPEN B-3): a one-day
+- [x] AC-3 — Request length counts calendar days with both ends included (OPEN B-3): a one-day
   request → 1; 2026-07-06…2026-07-17 (spans a weekend) → 12; an end date one day before the
   start date → 0, without error.
-- [ ] AC-4 — Used days count only approved requests (BR-4): with the seed data, Ayse Yilmaz has
+- [x] AC-4 — Used days count only approved requests (BR-4): with the seed data, Ayse Yilmaz has
   12 used days (her approved 2026-07-06…17 request, counted in calendar days — OPEN B-3; her
   pending 2026-12-28…30 request does not count); Mehmet Demir, Zeynep Kaya and Elif Sahin, who
   have only pending or rejected requests, have 0.
-- [ ] AC-5 — Remaining is entitlement minus used days, for the five seed employees: Ayse Yilmaz
+- [x] AC-5 — Remaining is entitlement minus used days, for the five seed employees: Ayse Yilmaz
   26 − 12 = 14 (OPEN B-3, B-4); Mehmet Demir 20 − 0 = 20 (OPEN B-4); Zeynep Kaya 14 − 0 = 14
   (OPEN B-1, B-4); Ahmet Celik 20 − 0 = 20 (OPEN B-4); Elif Sahin 0 − 0 = 0. Remaining has no
   floor: an employee with 0 entitlement and 3 approved days has −3.
-- [ ] AC-6 — A request shorter than the remaining balance is accepted — Ayse Yilmaz (14
+- [x] AC-6 — A request shorter than the remaining balance is accepted — Ayse Yilmaz (14
   remaining) and a 13-day request (calendar days — OPEN B-3): it is stored as pending
   (`Beklemede`) with the next id, the id sequence advances by one, and the employee's remaining
   balance is unchanged afterwards (pending requests are not deducted — OPEN B-4).
-- [ ] AC-7 — A request is refused, and nothing is stored, when the remaining balance is less
+- [x] AC-7 — A request is refused, and nothing is stored, when the remaining balance is less
   than **or equal to** its length (OPEN B-5; lengths in calendar days — OPEN B-3): 14 days remaining and a 14-day request → refused;
   an employee with 0 entitlement and a 1-day request → refused.
-- [ ] AC-8 — A request for an employee id that does not exist reports success, and nothing is
+- [x] AC-8 — A request for an employee id that does not exist reports success, and nothing is
   stored (OPEN B-5).
-- [ ] AC-9 — A request given directly to the leave rules (not through a page) with its dates
+- [x] AC-9 — A request given directly to the leave rules (not through a page) with its dates
   missing reports success, and nothing is stored: the failure is swallowed (OPEN B-5).
-- [ ] AC-10 — A request that starts before today is accepted like any other (BR-6:
+- [x] AC-10 — A request that starts before today is accepted like any other (BR-6:
   back-dated entries by HR).
 
 ## Definition of Done
-- [ ] Every acceptance criterion mapped to proof (test or reproducible observation)
-- [ ] `scripts/check` green
-- [ ] Independent review done; real findings fixed, noise rejected with written rationale, deferred ones in `specs/backlog.md`
-- [ ] Docs / ADRs updated if behavior or architecture changed
-- [ ] Spec moved to `specs/done/` (it becomes immutable there)
+- [x] Every acceptance criterion mapped to proof (test or reproducible observation)
+- [x] `scripts/check` green
+- [x] Independent review done; real findings fixed, noise rejected with written rationale, deferred ones in `specs/backlog.md`
+- [x] Docs / ADRs updated if behavior or architecture changed
+- [x] Spec moved to `specs/done/` (it becomes immutable there)
 
 ## Scorecard (fill at ship — honest numbers make the process improvable)
 | Metric | Value |
 |---|---|
-| Spec revisions | |
-| Fix rounds | |
-| Review findings: real / noise / deferred | |
-| Regressions introduced | |
-| Bugs escaped to production | |
+| Spec revisions | 1 (review round 1: M-1 backlog markers in AC-4…AC-7, I-1 AC-3 wording) |
+| Fix rounds | 1 |
+| Review findings: real / noise / deferred | 4 / 0 / 0 |
+| Regressions introduced | 0 |
+| Bugs escaped to production | 0 |
