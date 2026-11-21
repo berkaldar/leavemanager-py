@@ -47,8 +47,9 @@
   in tests — from bootstrap 2026-11-21.
 - Leap-day hire date (employee 4, 2020-02-29) — any anniversary-based seniority must handle
   Feb 28/29 in non-leap years — from bootstrap 2026-11-21.
-- `render_template_string(PAGE, body=...)` renders `body` with `|safe` — everything put into
-  `body` must already be escaped — from bootstrap 2026-11-21.
+- `render_template_string(PAGE, body=...)` renders `body` with `|safe` — every stored value put into
+  `body` must go through `esc()` first (a missed one is stored XSS; `tests/test_escaping.py` has
+  one test per place) — from bootstrap 2026-11-21, B-8 fixed in spec 0005.
 - Status strings are Turkish without diacritics and case-sensitive (`Onaylandi`, not
   `Onaylandı`) — use the constants — from bootstrap 2026-11-21.
 - On this Windows machine `python` resolves to the Microsoft Store stub — always call

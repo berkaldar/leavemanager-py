@@ -32,7 +32,7 @@ a later refactor spec, not a bootstrap decision.
 
 ## Known current violations (debt, fixed by `/refactor` specs after characterization tests)
 - `LeaveService.status_badge` returns HTML from the service.
-- `new_request` repeats the day count and the balance check of the service (`app.py:241-243`).
+- `new_request` repeats the day count and the balance check of the service (`app.py:247-249`).
 - Routes do their own employee lookups.
 - Rules call `datetime.now()` internally.
 
