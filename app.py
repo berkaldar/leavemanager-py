@@ -2,6 +2,7 @@
 # LeaveManager - Personel Izin Takip Sistemi
 # (c) 2015 - Ic gelistirme. Sorumlu: Ahmet
 # NOT: Bu dosyaya dokunmadan once Ahmet'e sor. (Ahmet 2019'da ayrildi)
+import html
 import os
 import secrets
 import sys
@@ -15,6 +16,11 @@ app = Flask(__name__)
 # is refused in the __main__ block, so importing the module (tests, smoke check) needs neither.
 app.secret_key = os.environ.get("SECRET_KEY")
 app.config.update(SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE="Lax")
+
+def esc(value):
+    # Stored text (names, departments, reasons, statuses) is shown as text, never as markup: every
+    # such value goes through esc() before it is put into page markup (docs/conventions.md).
+    return html.escape(str(value))
 
 # ---------------------------------------------------------------
 # "Veritabani" - simdilik memory'de, sonra SQL'e gecilecek (2016)
@@ -142,7 +148,7 @@ class LeaveService:
             color = "orange"
         if status == "Reddedildi":
             color = "red"
-        return "<b style='color:%s'>%s</b>" % (color, status)
+        return "<b style='color:%s'>%s</b>" % (color, esc(status))
 
 svc = LeaveService()
 
@@ -216,7 +222,7 @@ def dashboard():
     body += "<h3>Personel Bakiyeleri</h3><table><tr><th>Ad</th><th>Birim</th><th>Hak</th><th>Kullanilan</th><th>Kalan</th></tr>"
     for e in Db.employees:
         body += "<tr><td>%s</td><td>%s</td><td>%d</td><td>%d</td><td>%d</td></tr>" % (
-            e["name"], e["department"], svc.get_entitlement(e), svc.get_used_days(e["id"]), svc.get_remaining(e))
+            esc(e["name"]), esc(e["department"]), svc.get_entitlement(e), svc.get_used_days(e["id"]), svc.get_remaining(e))
     body += "</table>"
     return render_template_string(PAGE, body=body)
 
@@ -226,7 +232,7 @@ def list_requests():
     for r in Db.requests:
         emp = [e for e in Db.employees if e["id"] == r["employee_id"]][0]
         body += "<tr><td>%s</td><td>%s</td><td>%s</td><td>%d</td><td>%s</td><td>%s</td></tr>" % (
-            emp["name"], r["start"], r["end"], svc.calc_days(r["start"], r["end"]), r["reason"], svc.status_badge(r["status"]))
+            esc(emp["name"]), r["start"], r["end"], svc.calc_days(r["start"], r["end"]), esc(r["reason"]), svc.status_badge(r["status"]))
     body += "</table>"
     return render_template_string(PAGE, body=body)
 
@@ -247,7 +253,7 @@ def new_request():
         except Exception:
             # loglanacak
             return redirect("/requests")
-    options = "".join("<option value='%d'>%s</option>" % (e["id"], e["name"]) for e in Db.employees)
+    options = "".join("<option value='%d'>%s</option>" % (e["id"], esc(e["name"])) for e in Db.employees)
     body = """<h3>Yeni Talep</h3><form method="post">
     Personel: <select name="employee_id">%s</select><br><br>
     Baslangic: <input type="date" name="start"><br><br>

@@ -166,18 +166,19 @@ def test_missing_reason_is_stored_empty(client):
     assert Db.requests[-1]["reason"] == ""
 
 
-# --- AC-9: output is not escaped (OPEN B-8) --------------------------------------------------
+# --- AC-9: stored text is shown as text (spec 0005, Supersedes 0003/AC-9) --------------------
 
-def test_markup_in_reason_is_not_escaped(client):
+def test_markup_in_reason_is_escaped(client):
     submit(client, employee_id=AYSE, start="2026-12-01", end="2026-12-01", reason="<b>x</b>")
     assert Db.requests[-1]["reason"] == "<b>x</b>"  # stored as given
     html = client.get("/requests").get_data(as_text=True)
-    assert "<b>x</b>" in html  # OPEN B-8: rendered as markup
-    assert "&lt;b&gt;x&lt;/b&gt;" not in html
+    assert "&lt;b&gt;x&lt;/b&gt;" in html  # shown as text
+    assert "<b>x</b>" not in html  # not rendered as markup
 
 
-def test_markup_in_employee_name_is_not_escaped_in_dropdown(client):
+def test_markup_in_employee_name_is_escaped_in_dropdown(client):
     Db.employees[0]["name"] = "<b>x</b>"
     html = client.get("/new").get_data(as_text=True)
-    assert "<option value='1'><b>x</b></option>" in html  # OPEN B-8
-    assert "&lt;b&gt;x&lt;/b&gt;" not in html
+    assert "<option value='1'>&lt;b&gt;x&lt;/b&gt;</option>" in html
+    assert "<b>x</b>" not in html
+    assert html.count("<option") == 5  # still exactly the five employees

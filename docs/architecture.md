@@ -32,13 +32,13 @@ a later refactor spec, not a bootstrap decision.
 
 ## Known current violations (debt, fixed by `/refactor` specs after characterization tests)
 - `LeaveService.status_badge` returns HTML from the service.
-- `new_request` repeats the day count and the balance check of the service (`app.py:241-243`).
+- `new_request` repeats the day count and the balance check of the service (`app.py:247-249`).
 - Routes do their own employee lookups.
 - Rules call `datetime.now()` internally.
 
 ## Deliberately out of scope
 - Persistence (a real database) — a future spec.
-- Role enforcement (who may see or do what, spec 0005) and everything in `docs/security.md`
+- Role enforcement (who may see or do what, the roles spec) and everything in `docs/security.md`
   marked as a later spec. Sign-in, sessions and CSRF protection exist since spec 0004 (a
   `before_request` guard in the web layer).
 - Approve/reject workflow, year-end carry-over.

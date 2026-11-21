@@ -4,7 +4,7 @@
 
 ## Exposure
 LeaveManager runs on an internal network only, over plain HTTP. Every page requires a signed-in
-user (spec 0004); what each role may see or do is spec 0005 (roles are stored, not yet enforced:
+user (spec 0004); what each role may see or do is the roles spec (roles are stored, not yet enforced:
 any signed-in user sees everything). Do not expose it beyond the intranet before B-9 (debug mode)
 and B-11 (no rate limiting) are closed and the demo accounts below are replaced.
 
@@ -21,16 +21,19 @@ and B-11 (no rate limiting) are closed and the demo accounts below are replaced.
 - Validate at the route boundary (the trust boundary): dates parsed strictly as `YYYY-MM-DD`,
   end ≥ start, the employee must exist, reason length limited. Invalid input → HTTP 400 with a
   plain message.
-- **All output is escaped.** User-supplied text (reason) and stored data (names, departments) are
-  HTML-escaped before rendering; `|safe` only on markup built from escaped parts.
+- **All output is escaped.** User-supplied text (reason) and stored data (names, departments,
+  statuses) are HTML-escaped before rendering, with `esc()` in `app.py` (the standard library's
+  `html.escape`, all five special characters); `|safe` only on markup built from escaped parts.
+  Every new place that puts stored text into page markup must call `esc()` — a test per place
+  (`tests/test_escaping.py`) is the proof. The navigation username is escaped by the template.
 - Error pages never show stack traces, internal error codes or contact details.
 - Debug mode is off by default; it is enabled only through the `FLASK_DEBUG` environment variable,
   never in code.
 
 ## Known findings (bootstrap 2026-11-21)
-- **High — stored XSS:** reason and names are rendered unescaped with `|safe` (`app.py:157`).
-  First spec after the characterization tests (B-8).
-- **High — debug mode in code:** `app.run(debug=True)` (`app.py:267`) exposes the Werkzeug
+- **Medium — no security headers (B-12):** no Content-Security-Policy, which would be a second layer
+  against script injection, and no other hardening headers. The escaping above does not depend on it.
+- **High — debug mode in code:** `app.run(debug=True)` (`app.py:273`) exposes the Werkzeug
   debugger (B-9); the debugger's console sits outside the sign-in guard and is protected only by
   its PIN.
 - **Medium — sign-in hardening missing (B-11):** no rate limiting or lockout; failed sign-ins for a
@@ -61,7 +64,7 @@ and B-11 (no rate limiting) are closed and the demo accounts below are replaced.
   files; an anonymous visitor is redirected before any other check.
 - **CSRF:** one token per session (replaced at sign-in), a hidden `csrf_token` in every form, checked
   on every POST (HTTP 400 when missing or wrong).
-- Roles (`employee`, `manager`, `hr`) are stored per user; enforcing them is spec 0005.
+- Roles (`employee`, `manager`, `hr`) are stored per user; enforcing them is the roles spec.
 
 ## Dependencies
 - Exact pinned versions in `requirements.txt` / `requirements-dev.txt`.
