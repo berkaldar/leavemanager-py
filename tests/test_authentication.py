@@ -8,8 +8,10 @@ import os
 import re
 
 import pytest
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from app import Db
+from app import app as flask_app
 
 pytestmark = pytest.mark.http
 
@@ -189,3 +191,41 @@ def test_csrf_token_is_replaced_at_sign_in(anon_client):
     assert after_login != before_login
     assert anon_client.post("/logout", data={"csrf_token": before_login}).status_code == 400
     assert anon_client.post("/logout", data={"csrf_token": after_login}).status_code == 302
+
+
+# --- AC-7: passwords and roles ---------------------------------------------------------------
+
+def test_passwords_are_stored_hashed():
+    secret = password()
+    for user in Db.users:
+        stored = user["password_hash"]
+        assert stored != secret
+        assert secret not in stored
+        assert stored.count("$") == 2  # method$salt$hash
+        assert check_password_hash(stored, secret)
+        assert not check_password_hash(stored, "wrong-password")
+    assert generate_password_hash(secret) != generate_password_hash(secret)  # salted
+
+
+def test_seed_users_and_roles():
+    assert [(u["username"], u["employee_id"], u["role"]) for u in Db.users] == [
+        ("ayse", 1, "employee"),
+        ("mehmet", 2, "employee"),
+        ("zeynep", 3, "hr"),
+        ("ahmet", 4, "manager"),
+        ("elif", 5, "employee"),
+    ]
+
+
+def test_pages_are_identical_for_every_role():  # OPEN: roles change what is shown in spec 0005
+    def pages_seen_by(username):
+        client = flask_app.test_client()
+        login(client, username)
+        bodies = []
+        for path in ("/", "/requests", "/new"):
+            html = client.get(path).get_data(as_text=True)
+            html = html.replace(username + " <input", "USER <input")  # the navigation's name
+            bodies.append(re.sub(r'value="[0-9a-f]{32}"', 'value="TOKEN"', html))  # per-session
+        return bodies
+
+    assert pages_seen_by("elif") == pages_seen_by("ahmet") == pages_seen_by("zeynep")
