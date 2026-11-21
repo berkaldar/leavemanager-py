@@ -3,8 +3,6 @@
 These pin current behavior, bugs included. A test marked "OPEN B-n" changes on purpose in the
 spec that resolves backlog item B-n — never to get to green.
 
-Every page is fetched without authentication — OPEN B-7.
-
 A redirect to /requests follows both a save and a silent loss, so every submission test also
 asserts what was stored (Db.requests, Db.next_id).
 """
@@ -104,7 +102,10 @@ def test_error_page_keeps_navigation_but_has_no_form(client):
     assert '<a href="/">Ana Sayfa</a>' in html
     assert '<a href="/requests">Talepler</a>' in html
     assert '<a href="/new">Yeni Talep</a>' in html
-    assert "<form" not in html  # the user's input is not kept (OPEN B-10)
+    # no form except the sign-out form: the user's input is not kept (OPEN B-10; spec 0004,
+    # Supersedes 0003/AC-4)
+    assert html.count("<form") == 1
+    assert '<form method="post" action="/logout">' in html
 
 
 # --- AC-5: exactly enough balance (OPEN B-5, B-3) --------------------------------------------
