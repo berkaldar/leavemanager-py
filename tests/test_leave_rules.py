@@ -120,16 +120,20 @@ def test_request_below_balance_is_stored_pending():
 
 def test_request_equal_to_balance_is_refused():
     before = list(Db.requests)
+    next_id = Db.next_id
     # OPEN B-5: Ayse has exactly 14 remaining; a 14-day request (12-01…12-14) is refused.
     # OPEN B-3: "exactly" holds in calendar days only (10 working days).
     assert svc.create_request(AYSE, date(2026, 12, 1), date(2026, 12, 14), "Tatil") is False
     assert Db.requests == before
+    assert Db.next_id == next_id
 
 
 def test_request_with_zero_entitlement_is_refused():
     before = list(Db.requests)
+    next_id = Db.next_id
     assert svc.create_request(ELIF, date(2026, 12, 1), date(2026, 12, 1), "Tatil") is False
     assert Db.requests == before
+    assert Db.next_id == next_id
 
 
 def test_unknown_employee_reports_success_and_stores_nothing():
