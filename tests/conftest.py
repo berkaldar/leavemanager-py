@@ -21,3 +21,8 @@ def leave_state(monkeypatch):
     app.seed()
     # The rules read datetime.now() directly; the clock is not injectable yet (docs/testing.md).
     monkeypatch.setattr(app, "datetime", FrozenDatetime)
+
+
+@pytest.fixture
+def client():
+    return app.app.test_client()
