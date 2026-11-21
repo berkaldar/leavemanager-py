@@ -38,7 +38,7 @@ a later refactor spec, not a bootstrap decision.
 
 ## Deliberately out of scope
 - Persistence (a real database) — a future spec.
-- Role enforcement (who may see or do what, spec 0005) and everything in `docs/security.md`
+- Role enforcement (who may see or do what, the roles spec) and everything in `docs/security.md`
   marked as a later spec. Sign-in, sessions and CSRF protection exist since spec 0004 (a
   `before_request` guard in the web layer).
 - Approve/reject workflow, year-end carry-over.

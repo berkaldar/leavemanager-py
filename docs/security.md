@@ -4,7 +4,7 @@
 
 ## Exposure
 LeaveManager runs on an internal network only, over plain HTTP. Every page requires a signed-in
-user (spec 0004); what each role may see or do is spec 0005 (roles are stored, not yet enforced:
+user (spec 0004); what each role may see or do is the roles spec (roles are stored, not yet enforced:
 any signed-in user sees everything). Do not expose it beyond the intranet before B-9 (debug mode)
 and B-11 (no rate limiting) are closed and the demo accounts below are replaced.
 
@@ -64,7 +64,7 @@ and B-11 (no rate limiting) are closed and the demo accounts below are replaced.
   files; an anonymous visitor is redirected before any other check.
 - **CSRF:** one token per session (replaced at sign-in), a hidden `csrf_token` in every form, checked
   on every POST (HTTP 400 when missing or wrong).
-- Roles (`employee`, `manager`, `hr`) are stored per user; enforcing them is spec 0005.
+- Roles (`employee`, `manager`, `hr`) are stored per user; enforcing them is the roles spec.
 
 ## Dependencies
 - Exact pinned versions in `requirements.txt` / `requirements-dev.txt`.

@@ -14,7 +14,7 @@ employee's annual leave balance. Rules below describe the code **as it behaves t
 |---|---|---|
 | Employee (`Db.employees`) | A staff member: id, name, department, hire date | Departments are free text (`IT`, `Muhasebe`, `IK`, `Satis`) |
 | User (`Db.users`) | A sign-in account for one employee: username, password hash, role | One user per employee; usernames are first names in lowercase |
-| Role | `employee`, `manager` or `hr` | Stored per user; no page behaves differently by role until spec 0005 |
+| Role | `employee`, `manager` or `hr` | Stored per user; no page behaves differently by role until the roles spec |
 | Leave request (`Db.requests`) | A period of leave: employee, start date, end date (both inclusive), reason, status | "Talep" in the UI |
 | Status | `Beklemede` (pending) · `Onaylandi` (approved) · `Reddedildi` (rejected) | Stored values, Turkish, without diacritics, case-sensitive |
 | Seniority | Whole years of service, derived from hire date and today | See BR-2 (OPEN) |
@@ -48,7 +48,7 @@ employee's annual leave balance. Rules below describe the code **as it behaves t
 ## Sensitive areas
 - **Leave balance calculation** (BR-1…BR-5): a mistake changes what employees are entitled to.
 - **Employee personal data**: names, departments, hire dates.
-- **Authentication**: sign-in, sessions, CSRF protection and (spec 0005) the role rules decide who
+- **Authentication**: sign-in, sessions, CSRF protection and (the roles spec) the role rules decide who
   can read or change leave data; a mistake exposes everyone's balances.
 - **Year-end carry-over**: commented-out code in `LeaveService` (max 5 days carried). Not active;
   enabling it is new behavior and needs a spec.
