@@ -13,11 +13,11 @@
 - **Unit tests** call `LeaveService` with plain `date` values. **HTTP tests** use Flask's
   `app.test_client()` — in-process, no server, no port, no browser.
 - Fast/full split by **pytest marker**, never by file list (Two speeds, rule 4): HTTP tests carry
-  `@pytest.mark.http`; the fast step runs `-m "not http"`, the full-only step `-m http`.
-  Activated by the first spec that adds tests (see `scripts/check.conf`).
-- **Determinism:** every test starts from `seed()` (an autouse fixture) because `Db` is global
-  state; "today" is fixed (2026-11-21 unless a test says otherwise) — by patching
-  `app.datetime` with `unittest.mock` until a refactor injects the clock. No animations or
+  `@pytest.mark.http`; the fast step runs `-m "not http"` (active since spec 0001), the
+  full-only step `-m http` (activated with the first `http` test, spec 0002).
+- **Determinism:** every test starts from `seed()` (the autouse fixture in `tests/conftest.py`)
+  because `Db` is global state; "today" is fixed at 2026-11-21 by replacing `app.datetime` with
+  pytest's `monkeypatch` until a refactor injects the clock. No animations or
   JavaScript exist, so there is no motion to turn off.
 
 ## What must be tested
