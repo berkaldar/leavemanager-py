@@ -3,6 +3,8 @@
 These pin current behavior, bugs included. A test marked "OPEN B-n" changes on purpose in the
 spec that resolves backlog item B-n — never to get to green.
 
+Every page is fetched without authentication — OPEN B-7.
+
 A redirect to /requests follows both a save and a silent loss, so every submission test also
 asserts what was stored (Db.requests, Db.next_id).
 """
