@@ -2,6 +2,8 @@
 
 These pin current behavior, bugs included. A test marked "OPEN B-n" changes on purpose in the
 spec that resolves backlog item B-n — never to get to green.
+
+Every page is fetched without authentication — OPEN B-7.
 """
 from html.parser import HTMLParser
 
@@ -156,8 +158,14 @@ def test_markup_is_not_escaped(client, path, record, field):
 def test_only_three_pages_exist():
     from app import app
 
-    assert sorted(rule.rule for rule in app.url_map.iter_rules()) == [
-        "/", "/new", "/requests", "/static/<path:filename>",
+    # Paths and methods: a POST added to an existing page would change a status too.
+    assert sorted(
+        (rule.rule, sorted(rule.methods - {"HEAD", "OPTIONS"})) for rule in app.url_map.iter_rules()
+    ) == [
+        ("/", ["GET"]),
+        ("/new", ["GET", "POST"]),
+        ("/requests", ["GET"]),
+        ("/static/<path:filename>", ["GET"]),
     ]
 
 
