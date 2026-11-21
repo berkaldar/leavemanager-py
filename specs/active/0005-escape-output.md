@@ -1,6 +1,6 @@
 # Spec 0005 — Escape all page output (stored XSS, B-8)
 
-- Status: Draft
+- Status: Approved
 - Mode: lite
 - Plan: `specs/plans/0005-plan.md`
 - Self-critique: done
