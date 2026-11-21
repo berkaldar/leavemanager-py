@@ -94,3 +94,57 @@ def test_remaining_has_no_floor():
     Db.requests.append({"id": 100, "employee_id": emp["id"], "start": date(2026, 3, 2),
                         "end": date(2026, 3, 4), "reason": "Test", "status": "Onaylandi"})
     assert svc.get_remaining(emp) == -3
+
+
+# --- AC-6…AC-10: request creation (BR-5, BR-6) ----------------------------------------------
+
+def test_request_below_balance_is_stored_pending():
+    before = len(Db.requests)
+    next_id = Db.next_id
+    # Ayse: 14 remaining; 2026-12-01…12-13 is 13 days
+    assert svc.create_request(AYSE, date(2026, 12, 1), date(2026, 12, 13), "Tatil") is True
+    assert len(Db.requests) == before + 1
+    assert Db.requests[-1] == {"id": next_id, "employee_id": AYSE, "start": date(2026, 12, 1),
+                               "end": date(2026, 12, 13), "reason": "Tatil",
+                               "status": "Beklemede"}
+    assert Db.next_id == next_id + 1
+    assert svc.get_remaining(employee(AYSE)) == 14  # OPEN B-4: pending is not deducted
+
+
+def test_request_equal_to_balance_is_refused():
+    before = list(Db.requests)
+    # OPEN B-5: Ayse has exactly 14 remaining; a 14-day request (12-01…12-14) is refused
+    assert svc.create_request(AYSE, date(2026, 12, 1), date(2026, 12, 14), "Tatil") is False
+    assert Db.requests == before
+
+
+def test_request_with_zero_entitlement_is_refused():
+    before = list(Db.requests)
+    assert svc.create_request(ELIF, date(2026, 12, 1), date(2026, 12, 1), "Tatil") is False
+    assert Db.requests == before
+
+
+def test_unknown_employee_reports_success_and_stores_nothing():
+    before = list(Db.requests)
+    next_id = Db.next_id
+    # OPEN B-5: reports success for an employee that does not exist
+    assert svc.create_request(999, date(2026, 12, 1), date(2026, 12, 1), "Tatil") is True
+    assert Db.requests == before
+    assert Db.next_id == next_id
+
+
+def test_missing_dates_report_success_and_store_nothing():
+    before = list(Db.requests)
+    next_id = Db.next_id
+    # OPEN B-5: the failure is swallowed and reported as success
+    assert svc.create_request(AYSE, None, None, "Tatil") is True
+    assert Db.requests == before
+    assert Db.next_id == next_id
+
+
+def test_back_dated_request_is_accepted():
+    before = len(Db.requests)
+    assert svc.create_request(MEHMET, date(2026, 1, 5), date(2026, 1, 6), "Geriye donuk") is True
+    assert len(Db.requests) == before + 1
+    assert Db.requests[-1]["start"] == date(2026, 1, 5)
+    assert Db.requests[-1]["status"] == "Beklemede"
