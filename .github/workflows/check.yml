@@ -1,0 +1,61 @@
+name: check
+on:
+  push:
+  pull_request:
+
+jobs:
+  doctor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # doctor diffs specs/done/ against the PR's merge-base; a shallow clone has no base
+      - name: Workspace health (spec/plan gates are failures in CI)
+        run: ./scripts/doctor --strict
+      - name: Self-test (scripts/check, doctor and residue behave as documented)
+        run: ./scripts/selftest
+
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      # check.conf calls .venv/Scripts/python (the Windows venv layout); on Linux the venv keeps it
+      # in bin/, so a symlink gives both systems the same path.
+      - name: Project venv
+        run: |
+          python -m venv .venv
+          ln -s bin .venv/Scripts
+          .venv/Scripts/python -m pip install -r requirements-dev.txt
+      # --fast is for the inner loop only; CI always runs the full contract (docs/testing.md).
+      - name: Verification contract
+        run: |
+          if [ -f scripts/check.conf ]; then
+            ./scripts/check
+          else
+            echo "scripts/check.conf not present yet (pre-bootstrap) — skipping."
+          fi
+
+  extension:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: extensions/vscode
+    steps:
+      - uses: actions/checkout@v4
+      # a project that adopted ANEW (scripts/adopt) has no extensions/: the job passes without it
+      - uses: actions/setup-node@v4
+        if: hashFiles('extensions/vscode/package.json') != ''
+        with:
+          node-version: 24
+      - name: Install (dev dependencies only)
+        if: hashFiles('extensions/vscode/package.json') != ''
+        run: npm ci
+      - name: Typecheck and tests (the integration tests run the real scripts/status and scripts/gate)
+        if: hashFiles('extensions/vscode/package.json') != ''
+        run: npm test
+      - name: Package the .vsix
+        if: hashFiles('extensions/vscode/package.json') != ''
+        run: npm run package
