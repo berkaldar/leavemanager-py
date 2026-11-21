@@ -42,8 +42,9 @@ and B-11 (no rate limiting) are closed and the demo accounts below are replaced.
   is therefore valid for up to 31 days. A session lifetime and server-side revocation belong to
   B-11.
 - `python app.py` is the only supported way to serve the app: it checks `SECRET_KEY` and
-  `LEAVE_DEMO_PASSWORD` first. Served some other way without them, the app answers no data (the
-  sign-in page fails with a 500 and nobody can sign in).
+  `LEAVE_DEMO_PASSWORD` first. Served some other way without them, the app answers no data:
+  without `SECRET_KEY` the sign-in page fails with a 500, and without `LEAVE_DEMO_PASSWORD` the
+  page works but every sign-in fails.
 - **Limits of the first authentication (spec 0004):** the five demo accounts share one password
   (real user and password management is a later spec); the session cookie is not `Secure`
   because the app runs over plain HTTP; sign-in always lands on the dashboard (no "return to the
