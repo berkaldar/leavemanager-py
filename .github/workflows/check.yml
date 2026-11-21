@@ -19,8 +19,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # The bootstrap workflow may add toolchain setup steps here (e.g. setup-java, setup-node)
-      # to match the commands it writes into scripts/check.conf.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      # check.conf calls .venv/Scripts/python (the Windows venv layout); on Linux the venv keeps it
+      # in bin/, so a symlink gives both systems the same path.
+      - name: Project venv
+        run: |
+          python -m venv .venv
+          ln -s bin .venv/Scripts
+          .venv/Scripts/python -m pip install -r requirements-dev.txt
       # --fast is for the inner loop only; CI always runs the full contract (docs/testing.md).
       - name: Verification contract
         run: |
