@@ -65,6 +65,12 @@ def test_anonymous_post_redirects_and_stores_nothing(anon_client, path, with_tok
     assert nothing_stored(before, next_id)
 
 
+def test_static_files_need_no_sign_in(anon_client):
+    # AC-10: there are no static files today, so the answer is 404 — not a redirect to /login
+    resp = anon_client.get("/static/x")
+    assert resp.status_code == 404
+
+
 # --- AC-2: the sign-in page ------------------------------------------------------------------
 
 def test_login_page_form(anon_client):
@@ -118,12 +124,19 @@ CASES = {
 }
 
 
-@pytest.mark.parametrize("case", CASES)
-def test_failed_login_is_generic(anon_client, case):
+def failure_page(client, case):
     username, make_password = CASES[case]
-    resp = login(anon_client, username, make_password(password()))
+    resp = login(client, username, make_password(password()))
     assert resp.status_code == 200
     html = resp.get_data(as_text=True)
+    return html, re.sub(r'value="[0-9a-f]{32}"', 'value="TOKEN"', html)
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_failed_login_is_generic(anon_client, case):
+    html, normalized = failure_page(anon_client, case)
+    # the whole page is the same for every case, not only the message
+    assert normalized == failure_page(flask_app.test_client(), "wrong-password")[1]
     assert html.count("Kullanici adi veya sifre hatali") == 1  # the same message for every case
     assert '<input type="password" name="password">' in html  # the sign-in page again
     assert session_value(anon_client, "user") is None
