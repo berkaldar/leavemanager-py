@@ -73,7 +73,8 @@ def test_request_length_counts_calendar_days_inclusive(start, end, days):
 # --- AC-4: used days (BR-4) -----------------------------------------------------------------
 
 def test_used_days_count_only_approved_requests():
-    assert svc.get_used_days(AYSE) == 12  # approved 07-06…07-17; pending 12-28…30 not counted
+    # approved 07-06…07-17; pending 12-28…30 not counted. OPEN B-3: 12 calendar days, 10 working
+    assert svc.get_used_days(AYSE) == 12
     assert svc.get_used_days(MEHMET) == 0
     assert svc.get_used_days(ZEYNEP) == 0
     assert svc.get_used_days(ELIF) == 0
@@ -83,7 +84,13 @@ def test_used_days_count_only_approved_requests():
 
 @pytest.mark.parametrize(
     ("emp_id", "remaining"),
-    [(AYSE, 14), (MEHMET, 20), (ZEYNEP, 14), (AHMET, 20), (ELIF, 0)],
+    [
+        (AYSE, 14),  # OPEN B-3 (used days are calendar days), OPEN B-4 (pending not deducted)
+        (MEHMET, 20),  # OPEN B-4
+        (ZEYNEP, 14),  # OPEN B-1 (14, not 15), OPEN B-4
+        (AHMET, 20),  # OPEN B-4
+        (ELIF, 0),
+    ],
 )
 def test_remaining_for_seed_employees(emp_id, remaining):
     assert svc.get_remaining(employee(emp_id)) == remaining
@@ -101,7 +108,7 @@ def test_remaining_has_no_floor():
 def test_request_below_balance_is_stored_pending():
     before = len(Db.requests)
     next_id = Db.next_id
-    # Ayse: 14 remaining; 2026-12-01…12-13 is 13 days
+    # Ayse: 14 remaining; 2026-12-01…12-13 is 13 days (OPEN B-3: calendar days on both sides)
     assert svc.create_request(AYSE, date(2026, 12, 1), date(2026, 12, 13), "Tatil") is True
     assert len(Db.requests) == before + 1
     assert Db.requests[-1] == {"id": next_id, "employee_id": AYSE, "start": date(2026, 12, 1),
@@ -113,7 +120,8 @@ def test_request_below_balance_is_stored_pending():
 
 def test_request_equal_to_balance_is_refused():
     before = list(Db.requests)
-    # OPEN B-5: Ayse has exactly 14 remaining; a 14-day request (12-01…12-14) is refused
+    # OPEN B-5: Ayse has exactly 14 remaining; a 14-day request (12-01…12-14) is refused.
+    # OPEN B-3: "exactly" holds in calendar days only (10 working days).
     assert svc.create_request(AYSE, date(2026, 12, 1), date(2026, 12, 14), "Tatil") is False
     assert Db.requests == before
 

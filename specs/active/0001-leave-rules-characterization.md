@@ -47,19 +47,19 @@ none — no user interface (the pages are spec 0002).
   request → 1; 2026-07-06…2026-07-17 (spans two weekends) → 12; an end date one day before the
   start date → 0, without error.
 - [ ] AC-4 — Used days count only approved requests (BR-4): with the seed data, Ayse Yilmaz has
-  12 used days (her approved 2026-07-06…17 request; her pending 2026-12-28…30 request does not
-  count); Mehmet Demir, Zeynep Kaya and Elif Sahin, who have only pending or rejected requests,
-  have 0.
+  12 used days (her approved 2026-07-06…17 request, counted in calendar days — OPEN B-3; her
+  pending 2026-12-28…30 request does not count); Mehmet Demir, Zeynep Kaya and Elif Sahin, who
+  have only pending or rejected requests, have 0.
 - [ ] AC-5 — Remaining is entitlement minus used days, for the five seed employees: Ayse Yilmaz
-  26 − 12 = 14; Mehmet Demir 20 − 0 = 20; Zeynep Kaya 14 − 0 = 14; Ahmet Celik 20 − 0 = 20;
-  Elif Sahin 0 − 0 = 0. Remaining has no floor: an employee with 0 entitlement and 3 approved
-  days has −3.
+  26 − 12 = 14 (OPEN B-3, B-4); Mehmet Demir 20 − 0 = 20 (OPEN B-4); Zeynep Kaya 14 − 0 = 14
+  (OPEN B-1, B-4); Ahmet Celik 20 − 0 = 20 (OPEN B-4); Elif Sahin 0 − 0 = 0. Remaining has no
+  floor: an employee with 0 entitlement and 3 approved days has −3.
 - [ ] AC-6 — A request shorter than the remaining balance is accepted — Ayse Yilmaz (14
-  remaining) and a 13-day request: it is stored as pending
+  remaining) and a 13-day request (calendar days — OPEN B-3): it is stored as pending
   (`Beklemede`) with the next id, the id sequence advances by one, and the employee's remaining
   balance is unchanged afterwards (pending requests are not deducted — OPEN B-4).
 - [ ] AC-7 — A request is refused, and nothing is stored, when the remaining balance is less
-  than **or equal to** its length (OPEN B-5): 14 days remaining and a 14-day request → refused;
+  than **or equal to** its length (OPEN B-5; lengths in calendar days — OPEN B-3): 14 days remaining and a 14-day request → refused;
   an employee with 0 entitlement and a 1-day request → refused.
 - [ ] AC-8 — A request for an employee id that does not exist reports success, and nothing is
   stored (OPEN B-5).
