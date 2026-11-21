@@ -1,6 +1,7 @@
-# LeaveManager (Python/Flask)
+# LegacyToModernApp
 
-Internal staff leave tracker. Project rules: `AGENTS.md`.
+A legacy internal staff leave tracker, "LeaveManager" (Python/Flask), being brought under control and
+modernized step by step with ANEW. Project rules: `AGENTS.md`.
 
 Setup (Windows; `python` here may be the Store stub, so use the full interpreter path once):
 
