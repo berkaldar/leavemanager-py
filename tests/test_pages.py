@@ -2,8 +2,6 @@
 
 These pin current behavior, bugs included. A test marked "OPEN B-n" changes on purpose in the
 spec that resolves backlog item B-n — never to get to green.
-
-Every page is fetched without authentication — OPEN B-7.
 """
 from html.parser import HTMLParser
 
@@ -155,7 +153,7 @@ def test_markup_is_not_escaped(client, path, record, field):
 
 # --- AC-7: no page changes a status (BR-7) --------------------------------------------------
 
-def test_only_three_pages_exist():
+def test_only_these_pages_exist():
     from app import app
 
     # Paths and methods: a POST added to an existing page would change a status too.
@@ -163,6 +161,8 @@ def test_only_three_pages_exist():
         (rule.rule, sorted(rule.methods - {"HEAD", "OPTIONS"})) for rule in app.url_map.iter_rules()
     ) == [
         ("/", ["GET"]),
+        ("/login", ["GET", "POST"]),
+        ("/logout", ["POST"]),
         ("/new", ["GET", "POST"]),
         ("/requests", ["GET"]),
         ("/static/<path:filename>", ["GET"]),
@@ -171,8 +171,11 @@ def test_only_three_pages_exist():
 
 def test_request_list_has_no_actions(client):
     html = page(client, "/requests")
-    assert "<form" not in html
-    assert "<button" not in html
+    # the only form and button are the sign-out ones in the navigation (spec 0004, Supersedes 0002/AC-7)
+    assert html.count("<form") == 1
+    assert '<form method="post" action="/logout">' in html
+    assert html.count("<button") == 1
+    assert '<button type="submit">Cikis</button>' in html
     assert html.count("<a ") == 3  # the three navigation links only
 
 

@@ -16,7 +16,7 @@ a later refactor spec, not a bootstrap decision.
 |---|---|---|
 | web (Flask routes, `PAGE` template) | HTTP: parse and validate input, call the service, render HTML | Routes, templates, UI text (Turkish) |
 | service (`LeaveService`) | Leave rules: seniority, entitlement, request length, balance, request creation | Business rules BR-1…BR-7 (`docs/domain.md`) |
-| store (`Db`, `seed()`) | Holding employees and requests | Employee and request records, id sequence |
+| store (`Db`, `seed()`) | Holding employees, requests and users | Employee, request and user records (a user: username, role, password hash, linked employee), id sequence |
 
 ## Communication rules
 - web → service → store, by direct function calls.
@@ -32,12 +32,14 @@ a later refactor spec, not a bootstrap decision.
 
 ## Known current violations (debt, fixed by `/refactor` specs after characterization tests)
 - `LeaveService.status_badge` returns HTML from the service.
-- `new_request` repeats the day count and the balance check of the service (`app.py:163-165`).
+- `new_request` repeats the day count and the balance check of the service (`app.py:241-243`).
 - Routes do their own employee lookups.
 - Rules call `datetime.now()` internally.
 
 ## Deliberately out of scope
 - Persistence (a real database) — a future spec.
-- Authentication and authorization — see `docs/security.md`.
+- Role enforcement (who may see or do what, spec 0005) and everything in `docs/security.md`
+  marked as a later spec. Sign-in, sessions and CSRF protection exist since spec 0004 (a
+  `before_request` guard in the web layer).
 - Approve/reject workflow, year-end carry-over.
 - Any JavaScript front end or API.

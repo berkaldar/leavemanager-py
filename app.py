@@ -2,10 +2,19 @@
 # LeaveManager - Personel Izin Takip Sistemi
 # (c) 2015 - Ic gelistirme. Sorumlu: Ahmet
 # NOT: Bu dosyaya dokunmadan once Ahmet'e sor. (Ahmet 2019'da ayrildi)
-from flask import Flask, request, redirect, render_template_string
+import os
+import secrets
+import sys
 from datetime import datetime, date
 
+from flask import Flask, abort, request, redirect, render_template_string, session
+from werkzeug.security import check_password_hash, generate_password_hash
+
 app = Flask(__name__)
+# Secrets come from the environment, never from the repo (docs/security.md). Serving without them
+# is refused in the __main__ block, so importing the module (tests, smoke check) needs neither.
+app.secret_key = os.environ.get("SECRET_KEY")
+app.config.update(SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE="Lax")
 
 # ---------------------------------------------------------------
 # "Veritabani" - simdilik memory'de, sonra SQL'e gecilecek (2016)
@@ -13,7 +22,17 @@ app = Flask(__name__)
 class Db:
     employees = []
     requests = []
+    users = []
     next_id = 1
+
+_demo_hashes = {}
+
+def _demo_hash(password):
+    # shortcut: one shared demo password, hashed once per process (hashing is slow by design);
+    # replace with per-user hashes when real accounts exist
+    if password not in _demo_hashes:
+        _demo_hashes[password] = generate_password_hash(password)
+    return _demo_hashes[password]
 
 def seed():
     Db.employees = [
@@ -34,6 +53,15 @@ def seed():
         {"id": 8, "employee_id": 2, "start": date(2026, 8, 3),  "end": date(2026, 8, 3),  "reason": "Ozel is",         "status": "Reddedildi"},
     ]
     Db.next_id = 9
+    password = os.environ.get("LEAVE_DEMO_PASSWORD")
+    password_hash = _demo_hash(password) if password else None  # None: nobody can sign in
+    Db.users = [
+        {"username": "ayse", "employee_id": 1, "role": "employee", "password_hash": password_hash},
+        {"username": "mehmet", "employee_id": 2, "role": "employee", "password_hash": password_hash},
+        {"username": "zeynep", "employee_id": 3, "role": "hr", "password_hash": password_hash},
+        {"username": "ahmet", "employee_id": 4, "role": "manager", "password_hash": password_hash},
+        {"username": "elif", "employee_id": 5, "role": "employee", "password_hash": password_hash},
+    ]
 
 seed()
 
@@ -125,9 +153,59 @@ td,th{border:1px solid #ccc;padding:6px 10px} .kutu{display:inline-block;border:
 </head><body>
 <h2>LeaveManager</h2>
 <p><a href="/">Ana Sayfa</a> | <a href="/requests">Talepler</a> | <a href="/new">Yeni Talep</a></p>
+{% if session.get('user') %}<form method="post" action="/logout">{{ session['user'] }} <input type="hidden" name="csrf_token" value="{{ csrf }}"><button type="submit">Cikis</button></form>{% endif %}
 {{ body|safe }}
 </body></html>
 """
+
+def csrf_token():
+    # one token per session, replaced at sign-in (spec 0004, AC-6)
+    if "csrf" not in session:
+        session["csrf"] = secrets.token_hex(16)
+    return session["csrf"]
+
+@app.context_processor
+def inject_csrf():
+    return {"csrf": csrf_token()}
+
+@app.before_request
+def guard():
+    if request.endpoint in (None, "static"):
+        return None  # unknown URLs answer 404, static files need no sign-in
+    if request.endpoint != "login" and "user" not in session:
+        return redirect("/login")  # before the CSRF check, whatever the token
+    if request.method == "POST":
+        token = session.get("csrf")
+        if not token or not secrets.compare_digest(token.encode(), request.form.get("csrf_token", "").encode()):
+            abort(400)
+    return None
+
+def login_form(error=False):
+    message = "<p style='color:red'>Kullanici adi veya sifre hatali</p>" if error else ""
+    return """<h3>Giris</h3>%s<form method="post" action="/login">
+    Kullanici adi: <input type="text" name="username"><br><br>
+    Sifre: <input type="password" name="password"><br><br>
+    <input type="hidden" name="csrf_token" value="%s">
+    <input type="submit" value="Giris"></form>""" % (message, csrf_token())
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        user = next((u for u in Db.users if u["username"] == request.form.get("username", "")), None)
+        if user and user["password_hash"] and check_password_hash(user["password_hash"], request.form.get("password", "")):
+            session.clear()  # drop any earlier session data and its csrf token
+            session["user"] = user["username"]
+            session["csrf"] = secrets.token_hex(16)
+            return redirect("/")
+        return render_template_string(PAGE, body=login_form(error=True))
+    if "user" in session:
+        return redirect("/")
+    return render_template_string(PAGE, body=login_form())
+
+@app.route("/logout", methods=["POST"])
+def logout():
+    session.clear()
+    return redirect("/login")
 
 @app.route("/")
 def dashboard():
@@ -175,8 +253,15 @@ def new_request():
     Baslangic: <input type="date" name="start"><br><br>
     Bitis: <input type="date" name="end"><br><br>
     Neden: <input type="text" name="reason"><br><br>
-    <input type="submit" value="Kaydet"></form>""" % options
+    <input type="hidden" name="csrf_token" value="%s">
+    <input type="submit" value="Kaydet"></form>""" % (options, csrf_token())
     return render_template_string(PAGE, body=body)
 
+def missing_config():
+    return [name for name in ("SECRET_KEY", "LEAVE_DEMO_PASSWORD") if not os.environ.get(name)]
+
 if __name__ == "__main__":
+    missing = missing_config()
+    if missing:
+        sys.exit("LeaveManager cannot start: set " + ", ".join(missing) + " (see README.md)")
     app.run(port=5000, debug=True)  # debug acik kalsin, kolay oluyor
