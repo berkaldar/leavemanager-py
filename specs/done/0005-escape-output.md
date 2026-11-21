@@ -1,6 +1,6 @@
 # Spec 0005 — Escape all page output (stored XSS, B-8)
 
-- Status: In progress
+- Status: Shipped
 - Mode: lite
 - Plan: `specs/plans/0005-plan.md`
 - Self-critique: done
@@ -57,41 +57,41 @@ changes, and nothing stored needs cleaning up, because the data lives in memory.
 "Today" is 2026-11-21 and the data is the seed data unless a criterion says otherwise. The user is
 signed in (as in specs 0002–0004). "The page shows X as text" means: parsed the way a browser parses
 it, X is text content and creates no element; in the page source `<` appears as `&lt;`.
-- [ ] AC-1 — Dashboard: an employee name or department containing `<b>x</b>` is shown as the text
+- [x] AC-1 — Dashboard: an employee name or department containing `<b>x</b>` is shown as the text
   `<b>x</b>` (source: `&lt;b&gt;x&lt;/b&gt;`), not as bold text.
-- [ ] AC-2 — Request list: an employee name, and a reason submitted through the new-request form,
+- [x] AC-2 — Request list: an employee name, and a reason submitted through the new-request form,
   containing `<b>x</b>` are shown as the text `<b>x</b>`; so is a status value containing it (no
   page can set a status, so the test stores one directly; the label keeps its gray fallback
   color).
-- [ ] AC-3 — New-request page: an employee name containing `<b>x</b>` is shown as the text
+- [x] AC-3 — New-request page: an employee name containing `<b>x</b>` is shown as the text
   `<b>x</b>` in the dropdown option, and the dropdown still lists exactly five options.
-- [ ] AC-4 — All five special characters: a text `<>&"'` is shown as exactly those five
+- [x] AC-4 — All five special characters: a text `<>&"'` is shown as exactly those five
   characters — in a name on the dashboard, on the request list and in the dropdown; in a
   department on the dashboard; in a reason on the request list — and creates no element and no
   attribute (judged by parsing the page the way a browser does).
-- [ ] AC-5 — A text `<script>alert(1)</script>` in a name, a department or a reason is shown as
+- [x] AC-5 — A text `<script>alert(1)</script>` in a name, a department or a reason is shown as
   text on every page that shows it (same places as AC-4); no page then contains a `script`
   element made from it.
-- [ ] AC-6 — Escaped once: a text typed as `Tom &amp; Jerry` is shown as `Tom &amp; Jerry` (not
+- [x] AC-6 — Escaped once: a text typed as `Tom &amp; Jerry` is shown as `Tom &amp; Jerry` (not
   as `Tom & Jerry`), in the source as `Tom &amp;amp; Jerry`.
-- [ ] AC-7 — Ordinary data is unchanged: with data that has no special characters, every page is
+- [x] AC-7 — Ordinary data is unchanged: with data that has no special characters, every page is
   exactly as before this spec. The existing 91 tests pass with the same values and assertions;
   the only edits to them are the flipped tests named in R-5 and Supersedes.
-- [ ] AC-8 — Navigation: a signed-in username containing `<b>x</b>` is shown as the text
+- [x] AC-8 — Navigation: a signed-in username containing `<b>x</b>` is shown as the text
   `<b>x</b>` next to the "Cikis" button, on every page.
 
 ## Definition of Done
-- [ ] Every acceptance criterion mapped to proof (test or reproducible observation)
-- [ ] `scripts/check` green
-- [ ] Independent review done; real findings fixed, noise rejected with written rationale, deferred ones in `specs/backlog.md`
-- [ ] Docs / ADRs updated if behavior or architecture changed
-- [ ] Spec moved to `specs/done/` (it becomes immutable there)
+- [x] Every acceptance criterion mapped to proof (test or reproducible observation)
+- [x] `scripts/check` green
+- [x] Independent review done; real findings fixed, noise rejected with written rationale, deferred ones in `specs/backlog.md`
+- [x] Docs / ADRs updated if behavior or architecture changed
+- [x] Spec moved to `specs/done/` (it becomes immutable there)
 
 ## Scorecard (fill at ship — honest numbers make the process improvable)
 | Metric | Value |
 |---|---|
-| Spec revisions | |
-| Fix rounds | |
-| Review findings: real / noise / deferred | |
-| Regressions introduced | |
-| Bugs escaped to production | |
+| Spec revisions | 0 |
+| Fix rounds | 1 (documentation only, no re-review) |
+| Review findings: real / noise / deferred | 3 / 0 / 0 (plus VERIFY finding F-1, a Low gap that predates this spec, to B-13) |
+| Regressions introduced | 0 |
+| Bugs escaped to production | 0 |
