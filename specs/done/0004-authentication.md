@@ -1,6 +1,6 @@
 # Spec 0004 — Authentication (sign-in, sign-out, sessions, CSRF)
 
-- Status: In progress
+- Status: Shipped
 - Mode: lite
 - Plan: `specs/plans/0004-plan.md`
 - Self-critique: done
@@ -67,58 +67,58 @@ work.
 ## Acceptance criteria
 "Today" is 2026-11-21 and the data is the seed data. `SECRET_KEY` and `LEAVE_DEMO_PASSWORD` are
 set by the test setup.
-- [ ] AC-1 — An anonymous visitor to the dashboard, the request list or the new-request page is
+- [x] AC-1 — An anonymous visitor to the dashboard, the request list or the new-request page is
   redirected to `/login`; an anonymous post to `/new` or `/logout` is redirected to `/login` and
   nothing is stored — the redirect comes first, whatever the `csrf_token` (AC-6).
-- [ ] AC-2 — The sign-in page answers HTTP 200 to an anonymous visitor and shows a form that
+- [x] AC-2 — The sign-in page answers HTTP 200 to an anonymous visitor and shows a form that
   posts to `/login` with a text field `username`, a password field `password`, a hidden field
   `csrf_token`, and a "Giris" button.
-- [ ] AC-3 — Signing in with a seed username and the demo password redirects to `/`; from then on
+- [x] AC-3 — Signing in with a seed username and the demo password redirects to `/`; from then on
   the dashboard, the request list and the new-request page answer HTTP 200 and the navigation
   shows the username and a "Cikis" button. The session cookie is `HttpOnly` and `SameSite=Lax`
   and is not marked `Secure`. Signing in discards any earlier session data.
-- [ ] AC-4 — Usernames and passwords are matched exactly (no trimming, no case folding). A wrong
+- [x] AC-4 — Usernames and passwords are matched exactly (no trimming, no case folding). A wrong
   password and an unknown username each answer HTTP 200 with the sign-in page
   and the same message "Kullanici adi veya sifre hatali"; no session is started and the
   protected pages still redirect to `/login`.
-- [ ] AC-5 — Signing out (a post to `/logout`) ends the session: the protected pages redirect to
+- [x] AC-5 — Signing out (a post to `/logout`) ends the session: the protected pages redirect to
   `/login` again, and the sign-in page is shown. A signed-in user who opens `/login` is
   redirected to `/`.
-- [ ] AC-6 — A post to `/login` (anonymous), or to `/logout` or `/new` (signed in), whose
+- [x] AC-6 — A post to `/login` (anonymous), or to `/logout` or `/new` (signed in), whose
   `csrf_token` is missing or wrong answers HTTP 400; no session is started or ended and nothing is
   stored. There is one token per session: it is created when the session starts and replaced when
   signing in. With a correct token the post behaves as in AC-3, AC-5 and spec 0003.
-- [ ] AC-7 — Passwords are stored only as salted hashes (the stored value is never the demo
+- [x] AC-7 — Passwords are stored only as salted hashes (the stored value is never the demo
   password, and the demo password checks against it), and the demo password appears nowhere in
   the repository. Each seed user carries the role given in Constraints; the dashboard, the
   request list and the new-request page give identical responses to an employee, a manager and
   HR (OPEN, spec 0005).
-- [ ] AC-8 — Starting the application (`python app.py`) without `SECRET_KEY`, or without
+- [x] AC-8 — Starting the application (`python app.py`) without `SECRET_KEY`, or without
   `LEAVE_DEMO_PASSWORD`, exits with an error message that names the missing variable and serves
   nothing.
-- [ ] AC-9 — For a user signed in as any seed user, the dashboard, the request list and the
+- [x] AC-9 — For a user signed in as any seed user, the dashboard, the request list and the
   new-request page behave exactly as pinned by specs 0001–0003: the existing 59 tests pass with
   the same values and the same assertions, run signed in. The only edits to those test files are
   the sign-in fixture, the exact route list (AC-10), the removal of the B-7 notes in their
   docstrings, and two narrowed assertions (see Supersedes): on the request list, no form except
   the sign-out form, no button except "Cikis", exactly three navigation links and none per
   request; on the error page, no form except the sign-out form.
-- [ ] AC-10 — The application answers exactly these pages and methods: `/` GET, `/requests`
+- [x] AC-10 — The application answers exactly these pages and methods: `/` GET, `/requests`
   GET, `/new` GET and POST, `/login` GET and POST, `/logout` POST, and static files GET. Static
   files need no sign-in (there are none today).
 
 ## Definition of Done
-- [ ] Every acceptance criterion mapped to proof (test or reproducible observation)
-- [ ] `scripts/check` green
-- [ ] Independent review done; real findings fixed, noise rejected with written rationale, deferred ones in `specs/backlog.md`
-- [ ] Docs / ADRs updated if behavior or architecture changed
-- [ ] Spec moved to `specs/done/` (it becomes immutable there)
+- [x] Every acceptance criterion mapped to proof (test or reproducible observation)
+- [x] `scripts/check` green
+- [x] Independent review done; real findings fixed, noise rejected with written rationale, deferred ones in `specs/backlog.md`
+- [x] Docs / ADRs updated if behavior or architecture changed
+- [x] Spec moved to `specs/done/` (it becomes immutable there)
 
 ## Scorecard (fill at ship — honest numbers make the process improvable)
 | Metric | Value |
 |---|---|
-| Spec revisions | |
-| Fix rounds | |
-| Review findings: real / noise / deferred | |
-| Regressions introduced | |
-| Bugs escaped to production | |
+| Spec revisions | 1 (before PLAN: sign-out form conflicts with three shipped assertions, two more Supersedes, R-10) |
+| Fix rounds | 2 (round 2 documentation and evidence only) |
+| Review findings: real / noise / deferred | 10 / 3 / 1 |
+| Regressions introduced | 0 |
+| Bugs escaped to production | 0 |
