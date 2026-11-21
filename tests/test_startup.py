@@ -17,8 +17,12 @@ VARIABLES = ("SECRET_KEY", "LEAVE_DEMO_PASSWORD")
 def start_app(**given):
     env = {k: v for k, v in os.environ.items() if k not in VARIABLES}
     env.update(given)
+    # FLASK_RUN_FROM_CLI makes app.run() return without serving, so a regression of the start-up
+    # check fails this test instead of hanging it with a debug server left running (on Windows a
+    # timeout kills only the venv launcher, and the server child keeps the pipes open).
+    env["FLASK_RUN_FROM_CLI"] = "true"
     return subprocess.run([sys.executable, "-B", "app.py"], cwd=ROOT, env=env,
-                          capture_output=True, text=True, timeout=30)
+                          stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
 
 
 @pytest.mark.parametrize(

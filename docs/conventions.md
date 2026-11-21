@@ -38,6 +38,9 @@
 - HTML output is escaped (Jinja autoescape); `|safe` only on markup built from escaped parts.
 
 ## Known traps
+- A test that runs `python app.py` sets `FLASK_RUN_FROM_CLI=true` and closes stdin, so a
+  regression can never serve: on Windows a timeout kills only the venv launcher, and the server
+  child keeps the pipes open and hangs the run — from spec 0004 review round 1.
 - `Db` is class-level global state shared by every request and test — call `seed()` before each
   test; never rely on test order — from bootstrap 2026-11-21.
 - `datetime.now()` inside rules makes results depend on the run date — freeze or inject the clock
