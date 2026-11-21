@@ -41,6 +41,7 @@ def test_form_structure(client):
     assert len(options) == 5
     positions = [html.index(o) for o in options]
     assert positions == sorted(positions)  # seed order
+    assert html.count("<option") == 5  # exactly the five employees, no default empty choice
     assert '<input type="date" name="start">' in html
     assert '<input type="date" name="end">' in html
     assert '<input type="text" name="reason">' in html
@@ -98,6 +99,8 @@ def test_error_page_keeps_navigation_but_has_no_form(client):
     # 15 calendar days against 14 remaining: the error path depends on OPEN B-3, B-4
     resp, _, _ = submit(client, employee_id=AYSE, start="2026-12-01", end="2026-12-15")
     html = resp.get_data(as_text=True)
+    assert '<a href="/">Ana Sayfa</a>' in html
+    assert '<a href="/requests">Talepler</a>' in html
     assert '<a href="/new">Yeni Talep</a>' in html
     assert "<form" not in html  # the user's input is not kept (OPEN B-10)
 
@@ -120,6 +123,7 @@ def test_end_before_start_is_stored_with_negative_length(client):
     resp, before, next_id = submit(client, employee_id=AYSE, start="2026-12-10",
                                    end="2026-12-08", reason="Ters")
     assert resp.status_code == 302
+    assert resp.headers["Location"] == "/requests"
     assert Db.requests[-1]["start"] == date(2026, 12, 10)
     assert Db.requests[-1]["end"] == date(2026, 12, 8)
     assert Db.requests[-1]["status"] == "Beklemede"
