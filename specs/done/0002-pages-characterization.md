@@ -1,6 +1,6 @@
 # Spec 0002 — Read-only pages characterization (dashboard, request list, BR-7)
 
-- Status: In progress
+- Status: Shipped
 - Mode: lite
 - Plan: `specs/plans/0002-plan.md`
 - Self-critique: done
@@ -49,13 +49,13 @@ spec 0003.
 
 ## Acceptance criteria
 "Today" is 2026-11-21 and the data is the seed data unless a criterion says otherwise.
-- [ ] AC-1 — The dashboard shows the number of requests per status: pending (Bekleyen) 4,
+- [x] AC-1 — The dashboard shows the number of requests per status: pending (Bekleyen) 4,
   approved (Onaylanan) 1, rejected (Reddedilen) 3.
-- [ ] AC-2 — The dashboard's balance table has one row per employee, in seed order, with name,
+- [x] AC-2 — The dashboard's balance table has one row per employee, in seed order, with name,
   department, entitlement, used days and remaining: Ayse Yilmaz · IT · 26 · 12 · 14 (OPEN B-3,
   B-4); Mehmet Demir · Muhasebe · 20 · 0 · 20 (OPEN B-4); Zeynep Kaya · IK · 14 · 0 · 14 (OPEN
   B-1, B-4); Ahmet Celik · IT · 20 · 0 · 20 (OPEN B-4); Elif Sahin · Satis · 0 · 0 · 0.
-- [ ] AC-3 — The request list has one row per request, in stored order, with employee name, start,
+- [x] AC-3 — The request list has one row per request, in stored order, with employee name, start,
   end, length in calendar days (OPEN B-3), reason and status — the eight seed requests:
   1. Ayse Yilmaz · 2026-07-06 · 2026-07-17 · 12 · Yaz tatili · Onaylandi
   2. Mehmet Demir · 2026-11-02 · 2026-11-04 · 3 · Aile ziyareti · Beklemede
@@ -65,33 +65,33 @@ spec 0003.
   6. Elif Sahin · 2026-10-05 · 2026-10-07 · 3 · Tasinma · Reddedildi
   7. Zeynep Kaya · 2026-09-14 · 2026-09-25 · 12 · Uzun tatil · Reddedildi
   8. Mehmet Demir · 2026-08-03 · 2026-08-03 · 1 · Ozel is · Reddedildi
-- [ ] AC-4 — Each status label is colored through its inline style: Onaylandi `green`,
+- [x] AC-4 — Each status label is colored through its inline style: Onaylandi `green`,
   Beklemede `orange`, Reddedildi `red`; any other status value `#999` (gray).
-- [ ] AC-5 — Empty state: with no requests stored, the dashboard counts are 0 / 0 / 0 and its
+- [x] AC-5 — Empty state: with no requests stored, the dashboard counts are 0 / 0 / 0 and its
   balance table still lists all five employees with 0 used days; the request list shows its
   header row and no request rows.
-- [ ] AC-6 — Output is not escaped (OPEN B-8): text containing `<b>x</b>` appears in the page as
+- [x] AC-6 — Output is not escaped (OPEN B-8): text containing `<b>x</b>` appears in the page as
   `<b>x</b>`, not as `&lt;b&gt;x&lt;/b&gt;` — an employee name on the dashboard and on the
   request list, a department on the dashboard, and a reason on the request list.
-- [ ] AC-7 — No page can change a request's status (BR-7): the application answers only the
+- [x] AC-7 — No page can change a request's status (BR-7): the application answers only the
   dashboard, the request list and the new-request page (plus static files), and the request list
   offers no form, button or link per request.
-- [ ] AC-8 — Both pages answer with HTTP 200 and carry the page title "LeaveManager" and the
+- [x] AC-8 — Both pages answer with HTTP 200 and carry the page title "LeaveManager" and the
   links to the dashboard (Ana Sayfa), the request list (Talepler) and the new-request page
   (Yeni Talep).
 
 ## Definition of Done
-- [ ] Every acceptance criterion mapped to proof (test or reproducible observation)
-- [ ] `scripts/check` green
-- [ ] Independent review done; real findings fixed, noise rejected with written rationale, deferred ones in `specs/backlog.md`
-- [ ] Docs / ADRs updated if behavior or architecture changed
-- [ ] Spec moved to `specs/done/` (it becomes immutable there)
+- [x] Every acceptance criterion mapped to proof (test or reproducible observation)
+- [x] `scripts/check` green
+- [x] Independent review done; real findings fixed, noise rejected with written rationale, deferred ones in `specs/backlog.md`
+- [x] Docs / ADRs updated if behavior or architecture changed
+- [x] Spec moved to `specs/done/` (it becomes immutable there)
 
 ## Scorecard (fill at ship — honest numbers make the process improvable)
 | Metric | Value |
 |---|---|
-| Spec revisions | |
-| Fix rounds | |
-| Review findings: real / noise / deferred | |
-| Regressions introduced | |
-| Bugs escaped to production | |
+| Spec revisions | 0 |
+| Fix rounds | 1 |
+| Review findings: real / noise / deferred | 2 / 0 / 0 |
+| Regressions introduced | 0 |
+| Bugs escaped to production | 0 |
