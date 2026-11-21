@@ -57,20 +57,21 @@ means `Db.requests` and `Db.next_id`; "nothing stored" means both unchanged.
   and `end`; a text input named `reason`; and a "Kaydet" submit button. The page answers with
   HTTP 200.
 - [ ] AC-2 — A valid request is accepted and the user is redirected to the request list: Ayse
-  Yilmaz (14 remaining) for 13 days (2026-12-01…2026-12-13) is stored as pending (`Beklemede`)
+  Yilmaz (14 remaining — OPEN B-3, B-4) for 13 days (2026-12-01…2026-12-13, calendar days —
+  OPEN B-3) is stored as pending (`Beklemede`)
   with the next id, and then appears on the request list.
 - [ ] AC-3 — A one-day request is accepted and stored as pending.
-- [ ] AC-4 — Insufficient balance: Ayse Yilmaz (14 remaining) for 15 days returns HTTP 200 with
+- [ ] AC-4 — Insufficient balance: Ayse Yilmaz (14 remaining — OPEN B-3, B-4) for 15 days returns HTTP 200 with
   an error message that contains "HATA" and "bakiye yetersiz", and nothing is stored. The error
   page keeps the navigation links but has no form, so the user's input is not kept. An
   employee with 0 days remaining (Elif Sahin) and a one-day request gets the same message and
   nothing is stored. The message also exposes an internal error code and a phone extension
   (OPEN B-10; their text is not pinned).
-- [ ] AC-5 — Exactly enough balance (OPEN B-5, B-3): Ayse Yilmaz (14 remaining) for 14 days
+- [ ] AC-5 — Exactly enough balance (OPEN B-5, B-3, B-4): Ayse Yilmaz (14 remaining) for 14 days
   redirects to the request list as if saved, but **nothing is stored**.
 - [ ] AC-6 — An end date before the start date is accepted and stored, with a negative length
   (OPEN B-10): start 2026-12-10, end 2026-12-08 redirects to the request list, the request is
-  stored pending, and the request list shows its length as −1.
+  stored pending, and the request list shows its length as −1 (calendar-day formula — OPEN B-3).
 - [ ] AC-7 — Invalid input redirects to the request list and nothing is stored, with no error
   message (OPEN B-10): a missing start date; a missing end date; a malformed date; a missing
   employee field; a non-numeric employee id; an employee id that does not exist.
