@@ -96,6 +96,78 @@ def test_dashboard_empty_state(client):
     ]
 
 
+# --- AC-3: request rows ---------------------------------------------------------------------
+
+def test_request_list_rows(client):
+    assert table_rows(page(client, "/requests")) == [
+        LIST_HEADER,
+        # length column: calendar days, OPEN B-3
+        ["Ayse Yilmaz", "2026-07-06", "2026-07-17", "12", "Yaz tatili", "Onaylandi"],
+        ["Mehmet Demir", "2026-11-02", "2026-11-04", "3", "Aile ziyareti", "Beklemede"],
+        ["Zeynep Kaya", "2026-11-09", "2026-11-09", "1", "Saglik", "Beklemede"],
+        ["Ahmet Celik", "2026-12-21", "2026-12-25", "5", "Yilbasi oncesi", "Beklemede"],
+        ["Ayse Yilmaz", "2026-12-28", "2026-12-30", "3", "Yil sonu", "Beklemede"],
+        ["Elif Sahin", "2026-10-05", "2026-10-07", "3", "Tasinma", "Reddedildi"],
+        ["Zeynep Kaya", "2026-09-14", "2026-09-25", "12", "Uzun tatil", "Reddedildi"],
+        ["Mehmet Demir", "2026-08-03", "2026-08-03", "1", "Ozel is", "Reddedildi"],
+    ]
+
+
+# --- AC-4: status label colors --------------------------------------------------------------
+
+@pytest.mark.parametrize(
+    ("status", "color"),
+    [("Onaylandi", "green"), ("Beklemede", "orange"), ("Reddedildi", "red"), ("Iptal", "#999")],
+)
+def test_status_label_colors(client, status, color):
+    Db.requests = [{"id": 1, "employee_id": 1, "start": Db.requests[0]["start"],
+                    "end": Db.requests[0]["end"], "reason": "Test", "status": status}]
+    assert f"<b style='color:{color}'>{status}</b>" in page(client, "/requests")
+
+
+# --- AC-5: empty state (request list) -------------------------------------------------------
+
+def test_request_list_empty_state(client):
+    Db.requests = []
+    assert table_rows(page(client, "/requests")) == [LIST_HEADER]
+
+
+# --- AC-6: output is not escaped (OPEN B-8) -------------------------------------------------
+
+@pytest.mark.parametrize(
+    ("path", "record", "field"),
+    [
+        ("/", "employee", "name"),
+        ("/requests", "employee", "name"),
+        ("/", "employee", "department"),
+        ("/requests", "request", "reason"),
+    ],
+)
+def test_markup_is_not_escaped(client, path, record, field):
+    target = Db.employees[0] if record == "employee" else Db.requests[0]
+    target[field] = "<b>x</b>"
+    html = page(client, path)
+    assert "<b>x</b>" in html  # OPEN B-8: rendered as markup
+    assert "&lt;b&gt;x&lt;/b&gt;" not in html
+
+
+# --- AC-7: no page changes a status (BR-7) --------------------------------------------------
+
+def test_only_three_pages_exist():
+    from app import app
+
+    assert sorted(rule.rule for rule in app.url_map.iter_rules()) == [
+        "/", "/new", "/requests", "/static/<path:filename>",
+    ]
+
+
+def test_request_list_has_no_actions(client):
+    html = page(client, "/requests")
+    assert "<form" not in html
+    assert "<button" not in html
+    assert html.count("<a ") == 3  # the three navigation links only
+
+
 # --- AC-8: title and navigation -------------------------------------------------------------
 
 @pytest.mark.parametrize("path", ["/", "/requests"])
