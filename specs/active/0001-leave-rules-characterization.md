@@ -44,7 +44,7 @@ none — no user interface (the pages are spec 0002).
 - [ ] AC-2 — Entitlement by seniority (OPEN B-1 for 1–5 years), by hire year: 2026 (0 years)
   → 0 days; 2025 (1) → 14; 2021 (5) → 14; 2020 (6) → 20; 2011 (15) → 20; 2010 (16) → 26.
 - [ ] AC-3 — Request length counts calendar days with both ends included (OPEN B-3): a one-day
-  request → 1; 2026-07-06…2026-07-17 (spans two weekends) → 12; an end date one day before the
+  request → 1; 2026-07-06…2026-07-17 (spans a weekend) → 12; an end date one day before the
   start date → 0, without error.
 - [ ] AC-4 — Used days count only approved requests (BR-4): with the seed data, Ayse Yilmaz has
   12 used days (her approved 2026-07-06…17 request, counted in calendar days — OPEN B-3; her
